@@ -19,7 +19,7 @@
         }
         
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
         }
         
@@ -40,9 +40,41 @@
             opacity: 0.9;
         }
         
+        .tabs {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .tab-btn {
+            padding: 10px 20px;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1em;
+        }
+        
+        .tab-btn:hover, .tab-btn.active {
+            background: white;
+            color: #667eea;
+        }
+        
+        .tools-section {
+            display: none;
+        }
+        
+        .tools-section.active {
+            display: block;
+        }
+        
         .tools-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
             gap: 20px;
         }
         
@@ -89,6 +121,21 @@
         input:focus, select:focus, textarea:focus {
             outline: none;
             border-color: #667eea;
+        }
+        
+        input[type="file"] {
+            padding: 8px;
+            border-style: dashed;
+        }
+        
+        input[type="color"] {
+            height: 50px;
+            cursor: pointer;
+        }
+        
+        input[type="range"] {
+            width: 100%;
+            margin: 10px 0;
         }
         
         button {
@@ -164,6 +211,62 @@
         .hidden {
             display: none;
         }
+        
+        .preview-box {
+            margin-top: 15px;
+            text-align: center;
+        }
+        
+        .preview-box img {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 8px;
+            border: 2px solid #e0e0e0;
+        }
+        
+        .download-btn {
+            margin-top: 10px;
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        }
+        
+        .grid-preview {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 5px;
+            margin-top: 15px;
+        }
+        
+        .grid-preview img {
+            width: 100%;
+            aspect-ratio: 1;
+            object-fit: cover;
+            border-radius: 4px;
+        }
+        
+        .range-value {
+            text-align: center;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .checkbox-group label {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+        }
+        
+        .checkbox-group input[type="checkbox"] {
+            width: auto;
+            margin: 0;
+        }
     </style>
 </head>
 <body>
@@ -173,144 +276,256 @@
             <p>日常实用小工具，一站式解决</p>
         </header>
         
-        <div class="tools-grid">
-            <!-- 计算器 -->
-            <div class="tool-card">
-                <h2><span class="icon">🔢</span> 计算器</h2>
-                <div class="tool-content">
-                    <input type="text" id="calc-input" placeholder="输入算式，如：2 + 3 * 4">
-                    <button onclick="calculate()">计算</button>
-                    <div class="result hidden" id="calc-result">
-                        <div class="result-label">结果：</div>
-                        <div class="result-value" id="calc-value"></div>
+        <div class="tabs">
+            <div class="tab-btn active" onclick="switchTab('basic')">🔧 基础工具</div>
+            <div class="tab-btn" onclick="switchTab('image')">🖼️ 图片工具</div>
+        </div>
+        
+        <!-- 基础工具 -->
+        <div id="basic-tools" class="tools-section active">
+            <div class="tools-grid">
+                <!-- 计算器 -->
+                <div class="tool-card">
+                    <h2><span class="icon">🔢</span> 计算器</h2>
+                    <div class="tool-content">
+                        <input type="text" id="calc-input" placeholder="输入算式，如：2 + 3 * 4">
+                        <button onclick="calculate()">计算</button>
+                        <div class="result hidden" id="calc-result">
+                            <div class="result-label">结果：</div>
+                            <div class="result-value" id="calc-value"></div>
+                        </div>
                     </div>
                 </div>
-            </div>
-            
-            <!-- 单位转换 -->
-            <div class="tool-card">
-                <h2><span class="icon">📏</span> 单位转换</h2>
-                <div class="tool-content">
-                    <div class="length-tools">
-                        <input type="number" id="length-value" placeholder="数值">
-                        <select id="length-from">
-                            <option value="m">米</option>
-                            <option value="km">千米</option>
-                            <option value="cm">厘米</option>
-                            <option value="ft">英尺</option>
-                            <option value="in">英寸</option>
+                
+                <!-- 单位转换 -->
+                <div class="tool-card">
+                    <h2><span class="icon">📏</span> 单位转换</h2>
+                    <div class="tool-content">
+                        <div class="length-tools">
+                            <input type="number" id="length-value" placeholder="数值">
+                            <select id="length-from" onchange="convertLength()">
+                                <option value="m">米</option>
+                                <option value="km">千米</option>
+                                <option value="cm">厘米</option>
+                                <option value="ft">英尺</option>
+                                <option value="in">英寸</option>
+                            </select>
+                        </div>
+                        <div style="text-align: center; margin: 10px 0;">➡️</div>
+                        <div class="length-tools">
+                            <input type="number" id="length-to" readonly placeholder="结果">
+                            <select id="length-to-unit" onchange="convertLength()">
+                                <option value="m">米</option>
+                                <option value="km">千米</option>
+                                <option value="cm">厘米</option>
+                                <option value="ft">英尺</option>
+                                <option value="in">英寸</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 颜色选择器 -->
+                <div class="tool-card">
+                    <h2><span class="icon">🎨</span> 颜色选择器</h2>
+                    <div class="tool-content">
+                        <div class="color-preview" id="color-preview" style="background: #667eea;"></div>
+                        <input type="color" id="color-picker" value="#667eea" onchange="updateColor()">
+                        <div class="result">
+                            <div class="result-label">HEX:</div>
+                            <div class="result-value" id="color-hex">#667eea</div>
+                            <div class="result-label" style="margin-top: 10px;">RGB:</div>
+                            <div class="result-value" id="color-rgb">rgb(102, 126, 234)</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 文字统计 -->
+                <div class="tool-card">
+                    <h2><span class="icon">📝</span> 文字统计</h2>
+                    <div class="tool-content">
+                        <textarea id="text-input" rows="4" placeholder="输入文字..." oninput="countText()"></textarea>
+                        <div class="result">
+                            <div class="result-label">字符数：<span id="char-count">0</span></div>
+                            <div class="result-label">单词数：<span id="word-count">0</span></div>
+                            <div class="result-label">行数：<span id="line-count">0</span></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 密码生成器 -->
+                <div class="tool-card">
+                    <h2><span class="icon">🔐</span> 密码生成器</h2>
+                    <div class="tool-content">
+                        <div class="checkbox-group">
+                            <label><input type="checkbox" id="pwd-uppercase" checked> 大写字母</label>
+                            <label><input type="checkbox" id="pwd-lowercase" checked> 小写字母</label>
+                            <label><input type="checkbox" id="pwd-numbers" checked> 数字</label>
+                            <label><input type="checkbox" id="pwd-symbols"> 特殊符号</label>
+                        </div>
+                        <input type="number" id="pwd-length" value="12" min="4" max="32" placeholder="密码长度">
+                        <button onclick="generatePassword()">生成密码</button>
+                        <div class="result hidden" id="pwd-result">
+                            <div class="result-label">生成的密码：</div>
+                            <div class="result-value" id="pwd-value" style="font-family: monospace; font-size: 1.2em;"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 二维码生成 -->
+                <div class="tool-card">
+                    <h2><span class="icon">📱</span> 二维码生成</h2>
+                    <div class="tool-content">
+                        <input type="text" id="qr-text" placeholder="输入网址或文字">
+                        <button onclick="generateQR()">生成二维码</button>
+                        <div class="qr-code hidden" id="qr-result">
+                            <img id="qr-image" src="" alt="二维码" style="max-width: 200px;">
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 日期计算 -->
+                <div class="tool-card">
+                    <h2><span class="icon">📅</span> 日期计算</h2>
+                    <div class="tool-content">
+                        <input type="date" id="date-input">
+                        <button onclick="calculateDate()">计算天数差</button>
+                        <div class="result hidden" id="date-result">
+                            <div class="result-label">距离今天：</div>
+                            <div class="result-value" id="date-value"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 进制转换 -->
+                <div class="tool-card">
+                    <h2><span class="icon">💻</span> 进制转换</h2>
+                    <div class="tool-content">
+                        <input type="text" id="bin-input" placeholder="输入数字">
+                        <select id="bin-from">
+                            <option value="10">十进制</option>
+                            <option value="2">二进制</option>
+                            <option value="8">八进制</option>
+                            <option value="16">十六进制</option>
                         </select>
+                        <button onclick="convertBase()" style="margin-top: 10px;">转换</button>
+                        <div class="result hidden" id="bin-result">
+                            <div class="result-label">二进制：<span id="bin-2"></span></div>
+                            <div class="result-label">八进制：<span id="bin-8"></span></div>
+                            <div class="result-label">十进制：<span id="bin-10"></span></div>
+                            <div class="result-label">十六进制：<span id="bin-16"></span></div>
+                        </div>
                     </div>
-                    <div style="text-align: center; margin: 10px 0;">➡️</div>
-                    <div class="length-tools">
-                        <input type="number" id="length-to" readonly placeholder="结果">
-                        <select id="length-to-unit" onchange="convertLength()">
-                            <option value="m">米</option>
-                            <option value="km">千米</option>
-                            <option value="cm">厘米</option>
-                            <option value="ft">英尺</option>
-                            <option value="in">英寸</option>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 图片工具 -->
+        <div id="image-tools" class="tools-section">
+            <div class="tools-grid">
+                <!-- 图片压缩 -->
+                <div class="tool-card">
+                    <h2><span class="icon">🗜️</span> 图片压缩</h2>
+                    <div class="tool-content">
+                        <input type="file" id="compress-input" accept="image/*" onchange="previewCompress()">
+                        <label>质量：<span class="range-value" id="quality-value">80%</span></label>
+                        <input type="range" id="compress-quality" min="10" max="100" value="80" oninput="document.getElementById('quality-value').textContent = this.value + '%'">
+                        <button onclick="compressImage()">压缩图片</button>
+                        <div class="preview-box hidden" id="compress-preview">
+                            <img id="compress-img" alt="预览">
+                        </div>
+                        <a id="compress-download" class="download-btn" style="display:none;"></a>
+                    </div>
+                </div>
+                
+                <!-- 九宫格切图 -->
+                <div class="tool-card">
+                    <h2><span class="icon">✂️</span> 九宫格切图</h2>
+                    <div class="tool-content">
+                        <input type="file" id="grid-input" accept="image/*" onchange="previewGrid()">
+                        <button onclick="cutGrid()">切图</button>
+                        <div class="grid-preview hidden" id="grid-result"></div>
+                        <button onclick="downloadGrid()" class="download-btn hidden" id="grid-download-btn">打包下载</button>
+                    </div>
+                </div>
+                
+                <!-- 图片格式转换 -->
+                <div class="tool-card">
+                    <h2><span class="icon">🔄</span> 格式转换</h2>
+                    <div class="tool-content">
+                        <input type="file" id="format-input" accept="image/*" onchange="previewFormat()">
+                        <select id="format-to">
+                            <option value="image/jpeg">JPG</option>
+                            <option value="image/png">PNG</option>
+                            <option value="image/webp">WebP</option>
                         </select>
-                    </div>
-                    <button onclick="convertLength()" style="margin-top: 10px;">转换</button>
-                </div>
-            </div>
-            
-            <!-- 颜色选择器 -->
-            <div class="tool-card">
-                <h2><span class="icon">🎨</span> 颜色选择器</h2>
-                <div class="tool-content">
-                    <div class="color-preview" id="color-preview" style="background: #667eea;"></div>
-                    <input type="color" id="color-picker" value="#667eea" onchange="updateColor()">
-                    <div class="result">
-                        <div class="result-label">HEX:</div>
-                        <div class="result-value" id="color-hex">#667eea</div>
-                        <div class="result-label" style="margin-top: 10px;">RGB:</div>
-                        <div class="result-value" id="color-rgb">rgb(102, 126, 234)</div>
+                        <button onclick="convertFormat()">转换</button>
+                        <div class="preview-box hidden" id="format-preview">
+                            <img id="format-img" alt="预览">
+                        </div>
+                        <a id="format-download" class="download-btn" style="display:none;">下载</a>
                     </div>
                 </div>
-            </div>
-            
-            <!-- 文字统计 -->
-            <div class="tool-card">
-                <h2><span class="icon">📝</span> 文字统计</h2>
-                <div class="tool-content">
-                    <textarea id="text-input" rows="4" placeholder="输入文字..." oninput="countText()"></textarea>
-                    <div class="result">
-                        <div class="result-label">字符数：<span id="char-count">0</span></div>
-                        <div class="result-label">单词数：<span id="word-count">0</span></div>
-                        <div class="result-label">行数：<span id="line-count">0</span></div>
+                
+                <!-- 加水印 -->
+                <div class="tool-card">
+                    <h2><span class="icon">💧</span> 加水印</h2>
+                    <div class="tool-content">
+                        <input type="file" id="watermark-input" accept="image/*" onchange="previewWatermark()">
+                        <input type="text" id="watermark-text" placeholder="水印文字">
+                        <div class="length-tools">
+                            <input type="color" id="watermark-color" value="#ffffff">
+                            <input type="number" id="watermark-size" value="40" min="10" max="200" placeholder="字号">
+                        </div>
+                        <select id="watermark-position">
+                            <option value="tl">左上角</option>
+                            <option value="tr">右上角</option>
+                            <option value="bl">左下角</option>
+                            <option value="br">右下角</option>
+                            <option value="center">居中</option>
+                        </select>
+                        <button onclick="addWatermark()">添加水印</button>
+                        <div class="preview-box hidden" id="watermark-preview">
+                            <img id="watermark-img" alt="预览">
+                        </div>
+                        <a id="watermark-download" class="download-btn" style="display:none;">下载</a>
                     </div>
                 </div>
-            </div>
-            
-            <!-- 密码生成器 -->
-            <div class="tool-card">
-                <h2><span class="icon">🔐</span> 密码生成器</h2>
-                <div class="tool-content">
-                    <label style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
-                        <input type="checkbox" id="pwd-uppercase" checked style="width: auto; margin: 0;"> 大写字母
-                    </label>
-                    <label style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
-                        <input type="checkbox" id="pwd-lowercase" checked style="width: auto; margin: 0;"> 小写字母
-                    </label>
-                    <label style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
-                        <input type="checkbox" id="pwd-numbers" checked style="width: auto; margin: 0;"> 数字
-                    </label>
-                    <label style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
-                        <input type="checkbox" id="pwd-symbols" style="width: auto; margin: 0;"> 特殊符号
-                    </label>
-                    <input type="number" id="pwd-length" value="12" min="4" max="32" placeholder="密码长度">
-                    <button onclick="generatePassword()">生成密码</button>
-                    <div class="result hidden" id="pwd-result">
-                        <div class="result-label">生成的密码：</div>
-                        <div class="result-value" id="pwd-value" style="font-family: monospace; font-size: 1.2em;"></div>
+                
+                <!-- 图片裁剪 -->
+                <div class="tool-card">
+                    <h2><span class="icon">📐</span> 图片裁剪</h2>
+                    <div class="tool-content">
+                        <input type="file" id="crop-input" accept="image/*" onchange="previewCrop()">
+                        <div class="length-tools">
+                            <input type="number" id="crop-width" placeholder="宽度">
+                            <input type="number" id="crop-height" placeholder="高度">
+                        </div>
+                        <button onclick="cropImage()">裁剪</button>
+                        <div class="preview-box hidden" id="crop-preview">
+                            <img id="crop-img" alt="预览">
+                        </div>
+                        <a id="crop-download" class="download-btn" style="display:none;">下载</a>
                     </div>
                 </div>
-            </div>
-            
-            <!-- 二维码生成 -->
-            <div class="tool-card">
-                <h2><span class="icon">📱</span> 二维码生成</h2>
-                <div class="tool-content">
-                    <input type="text" id="qr-text" placeholder="输入网址或文字">
-                    <button onclick="generateQR()">生成二维码</button>
-                    <div class="qr-code hidden" id="qr-result">
-                        <img id="qr-image" src="" alt="二维码" style="max-width: 200px;">
-                    </div>
-                </div>
-            </div>
-            
-            <!-- 日期计算 -->
-            <div class="tool-card">
-                <h2><span class="icon">📅</span> 日期计算</h2>
-                <div class="tool-content">
-                    <input type="date" id="date-input">
-                    <button onclick="calculateDate()">计算天数差</button>
-                    <div class="result hidden" id="date-result">
-                        <div class="result-label">距离今天：</div>
-                        <div class="result-value" id="date-value"></div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- 进制转换 -->
-            <div class="tool-card">
-                <h2><span class="icon">💻</span> 进制转换</h2>
-                <div class="tool-content">
-                    <input type="text" id="bin-input" placeholder="输入数字">
-                    <select id="bin-from">
-                        <option value="10">十进制</option>
-                        <option value="2">二进制</option>
-                        <option value="8">八进制</option>
-                        <option value="16">十六进制</option>
-                    </select>
-                    <button onclick="convertBase()" style="margin-top: 10px;">转换</button>
-                    <div class="result hidden" id="bin-result">
-                        <div class="result-label">二进制：<span id="bin-2"></span></div>
-                        <div class="result-label">八进制：<span id="bin-8"></span></div>
-                        <div class="result-label">十进制：<span id="bin-10"></span></div>
-                        <div class="result-label">十六进制：<span id="bin-16"></span></div>
+                
+                <!-- 图片旋转翻转 -->
+                <div class="tool-card">
+                    <h2><span class="icon">🔃</span> 旋转翻转</h2>
+                    <div class="tool-content">
+                        <input type="file" id="rotate-input" accept="image/*" onchange="previewRotate()">
+                        <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                            <button onclick="rotateImage(90)" style="flex:1;">↻ 右旋 90°</button>
+                            <button onclick="rotateImage(-90)" style="flex:1;">↺ 左旋 90°</button>
+                        </div>
+                        <div style="display: flex; gap: 10px;">
+                            <button onclick="flipImage('h')" style="flex:1;">⇄ 水平翻转</button>
+                            <button onclick="flipImage('v')" style="flex:1;">⇅ 垂直翻转</button>
+                        </div>
+                        <div class="preview-box hidden" id="rotate-preview">
+                            <img id="rotate-img" alt="预览">
+                        </div>
+                        <a id="rotate-download" class="download-btn" style="display:none;">下载</a>
                     </div>
                 </div>
             </div>
@@ -318,6 +533,17 @@
     </div>
     
     <script>
+        // 切换标签
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tools-section').forEach(sec => sec.classList.remove('active'));
+            
+            event.target.classList.add('active');
+            document.getElementById(tab + '-tools').classList.add('active');
+        }
+        
+        // ========== 基础工具 ==========
+        
         // 计算器
         function calculate() {
             const input = document.getElementById('calc-input').value;
@@ -343,11 +569,7 @@
             }
             
             const toMeter = {
-                m: 1,
-                km: 1000,
-                cm: 0.01,
-                ft: 0.3048,
-                in: 0.0254
+                m: 1, km: 1000, cm: 0.01, ft: 0.3048, in: 0.0254
             };
             
             const meters = value * toMeter[from];
@@ -451,9 +673,7 @@
             
             try {
                 const decimal = parseInt(input, fromBase);
-                if (isNaN(decimal)) {
-                    throw new Error('无效的数字');
-                }
+                if (isNaN(decimal)) throw new Error('无效的数字');
                 
                 document.getElementById('bin-2').textContent = decimal.toString(2);
                 document.getElementById('bin-8').textContent = decimal.toString(8);
@@ -463,6 +683,376 @@
             } catch (e) {
                 alert('请输入有效的数字');
             }
+        }
+        
+        // ========== 图片工具 ==========
+        
+        let compressImgObj = null;
+        let gridImages = [];
+        let rotateImgObj = null;
+        let rotateAngle = 0;
+        let flipH = false;
+        let flipV = false;
+        
+        // 图片压缩预览
+        function previewCompress() {
+            const file = document.getElementById('compress-input').files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('compress-img').src = e.target.result;
+                document.getElementById('compress-preview').classList.remove('hidden');
+            };
+            reader.readAsDataURL(file);
+        }
+        
+        // 图片压缩
+        function compressImage() {
+            const file = document.getElementById('compress-input').files[0];
+            if (!file) {
+                alert('请选择图片');
+                return;
+            }
+            
+            const quality = parseInt(document.getElementById('compress-quality').value) / 100;
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            const img = new Image();
+            
+            img.onload = function() {
+                canvas.width = img.width;
+                canvas.height = img.height;
+                ctx.drawImage(img, 0, 0);
+                
+                canvas.toBlob(function(blob) {
+                    const url = URL.createObjectURL(blob);
+                    const a = document.getElementById('compress-download');
+                    a.href = url;
+                    a.download = 'compressed_' + file.name;
+                    a.style.display = 'inline-block';
+                    a.textContent = '下载压缩图片';
+                    a.click();
+                }, file.type, quality);
+            };
+            img.src = URL.createObjectURL(file);
+        }
+        
+        // 九宫格预览
+        function previewGrid() {
+            const file = document.getElementById('grid-input').files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('grid-result').innerHTML = `<img src="${e.target.result}" style="max-width:100%;border-radius:8px;">`;
+                document.getElementById('grid-result').classList.remove('hidden');
+            };
+            reader.readAsDataURL(file);
+        }
+        
+        // 九宫格切图
+        function cutGrid() {
+            const file = document.getElementById('grid-input').files[0];
+            if (!file) {
+                alert('请选择图片');
+                return;
+            }
+            
+            const img = new Image();
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                img.src = e.target.result;
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    const pieceWidth = img.width / 3;
+                    const pieceHeight = img.height / 3;
+                    
+                    gridImages = [];
+                    const gridDiv = document.getElementById('grid-result');
+                    gridDiv.innerHTML = '';
+                    
+                    for (let i = 0; i < 9; i++) {
+                        const row = Math.floor(i / 3);
+                        const col = i % 3;
+                        
+                        canvas.width = pieceWidth;
+                        canvas.height = pieceHeight;
+                        ctx.drawImage(img, col * pieceWidth, row * pieceHeight, pieceWidth, pieceHeight, 0, 0, pieceWidth, pieceHeight);
+                        
+                        const dataUrl = canvas.toDataURL(file.type);
+                        gridImages.push(dataUrl);
+                        
+                        const imgEl = document.createElement('img');
+                        imgEl.src = dataUrl;
+                        gridDiv.appendChild(imgEl);
+                    }
+                    
+                    gridDiv.classList.remove('hidden');
+                    document.getElementById('grid-download-btn').classList.remove('hidden');
+                };
+            };
+            reader.readAsDataURL(file);
+        }
+        
+        // 下载九宫格
+        function downloadGrid() {
+            gridImages.forEach((url, index) => {
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `grid_${index + 1}.png`;
+                setTimeout(() => a.click(), index * 100);
+            });
+        }
+        
+        // 格式转换预览
+        function previewFormat() {
+            const file = document.getElementById('format-input').files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('format-img').src = e.target.result;
+                document.getElementById('format-preview').classList.remove('hidden');
+            };
+            reader.readAsDataURL(file);
+        }
+        
+        // 格式转换
+        function convertFormat() {
+            const file = document.getElementById('format-input').files[0];
+            if (!file) {
+                alert('请选择图片');
+                return;
+            }
+            
+            const format = document.getElementById('format-to').value;
+            const img = new Image();
+            
+            img.onload = function() {
+                const canvas = document.createElement('canvas');
+                canvas.width = img.width;
+                canvas.height = img.height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0);
+                
+                canvas.toBlob(function(blob) {
+                    const url = URL.createObjectURL(blob);
+                    const a = document.getElementById('format-download');
+                    a.href = url;
+                    const ext = format.split('/')[1];
+                    a.download = file.name.replace(/\.[^.]+$/, '') + '.' + ext;
+                    a.style.display = 'inline-block';
+                    a.click();
+                }, format);
+            };
+            img.src = URL.createObjectURL(file);
+        }
+        
+        // 水印预览
+        function previewWatermark() {
+            const file = document.getElementById('watermark-input').files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('watermark-img').src = e.target.result;
+                document.getElementById('watermark-preview').classList.remove('hidden');
+            };
+            reader.readAsDataURL(file);
+        }
+        
+        // 加水印
+        function addWatermark() {
+            const file = document.getElementById('watermark-input').files[0];
+            const text = document.getElementById('watermark-text').value;
+            
+            if (!file) {
+                alert('请选择图片');
+                return;
+            }
+            if (!text) {
+                alert('请输入水印文字');
+                return;
+            }
+            
+            const img = new Image();
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                img.src = e.target.result;
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    const ctx = canvas.getContext('2d');
+                    
+                    ctx.drawImage(img, 0, 0);
+                    
+                    const fontSize = parseInt(document.getElementById('watermark-size').value) || 40;
+                    ctx.font = `${fontSize}px Arial`;
+                    ctx.fillStyle = document.getElementById('watermark-color').value;
+                    ctx.globalAlpha = 0.7;
+                    
+                    const textWidth = ctx.measureText(text).width;
+                    const padding = 20;
+                    let x, y;
+                    
+                    const pos = document.getElementById('watermark-position').value;
+                    switch(pos) {
+                        case 'tl': x = padding; y = fontSize + padding; break;
+                        case 'tr': x = img.width - textWidth - padding; y = fontSize + padding; break;
+                        case 'bl': x = padding; y = img.height - padding; break;
+                        case 'br': x = img.width - textWidth - padding; y = img.height - padding; break;
+                        case 'center': x = (img.width - textWidth) / 2; y = img.height / 2; break;
+                    }
+                    
+                    ctx.fillText(text, x, y);
+                    
+                    const url = canvas.toDataURL('image/png');
+                    document.getElementById('watermark-img').src = url;
+                    
+                    const a = document.getElementById('watermark-download');
+                    a.href = url;
+                    a.download = 'watermarked_' + file.name;
+                    a.style.display = 'inline-block';
+                };
+            };
+            reader.readAsDataURL(file);
+        }
+        
+        // 裁剪预览
+        function previewCrop() {
+            const file = document.getElementById('crop-input').files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = document.getElementById('crop-img');
+                img.src = e.target.result;
+                img.onload = function() {
+                    document.getElementById('crop-width').value = img.width;
+                    document.getElementById('crop-height').value = img.height;
+                };
+                document.getElementById('crop-preview').classList.remove('hidden');
+            };
+            reader.readAsDataURL(file);
+        }
+        
+        // 裁剪图片
+        function cropImage() {
+            const file = document.getElementById('crop-input').files[0];
+            if (!file) {
+                alert('请选择图片');
+                return;
+            }
+            
+            const width = parseInt(document.getElementById('crop-width').value);
+            const height = parseInt(document.getElementById('crop-height').value);
+            
+            const img = new Image();
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                img.src = e.target.result;
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    
+                    ctx.drawImage(img, 0, 0, width, height, 0, 0, width, height);
+                    
+                    const url = canvas.toDataURL(file.type);
+                    document.getElementById('crop-img').src = url;
+                    
+                    const a = document.getElementById('crop-download');
+                    a.href = url;
+                    a.download = 'cropped_' + file.name;
+                    a.style.display = 'inline-block';
+                };
+            };
+            reader.readAsDataURL(file);
+        }
+        
+        // 旋转预览
+        function previewRotate() {
+            const file = document.getElementById('rotate-input').files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('rotate-img').src = e.target.result;
+                document.getElementById('rotate-preview').classList.remove('hidden');
+                rotateAngle = 0;
+                flipH = false;
+                flipV = false;
+            };
+            reader.readAsDataURL(file);
+        }
+        
+        // 旋转图片
+        function rotateImage(angle) {
+            const file = document.getElementById('rotate-input').files[0];
+            if (!file) {
+                alert('请选择图片');
+                return;
+            }
+            
+            rotateAngle += angle;
+            applyRotate();
+        }
+        
+        // 翻转图片
+        function flipImage(direction) {
+            const file = document.getElementById('rotate-input').files[0];
+            if (!file) {
+                alert('请选择图片');
+                return;
+            }
+            
+            if (direction === 'h') flipH = !flipH;
+            else flipV = !flipV;
+            applyRotate();
+        }
+        
+        // 应用旋转翻转
+        function applyRotate() {
+            const file = document.getElementById('rotate-input').files[0];
+            const img = new Image();
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                img.src = e.target.result;
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    
+                    if (rotateAngle % 180 !== 0) {
+                        canvas.width = img.height;
+                        canvas.height = img.width;
+                    } else {
+                        canvas.width = img.width;
+                        canvas.height = img.height;
+                    }
+                    
+                    ctx.translate(canvas.width / 2, canvas.height / 2);
+                    ctx.rotate(rotateAngle * Math.PI / 180);
+                    ctx.scale(flipH ? -1 : 1, flipV ? -1 : 1);
+                    ctx.drawImage(img, -img.width / 2, -img.height / 2);
+                    
+                    const url = canvas.toDataURL('image/png');
+                    document.getElementById('rotate-img').src = url;
+                    
+                    const a = document.getElementById('rotate-download');
+                    a.href = url;
+                    a.download = 'rotated_' + file.name;
+                    a.style.display = 'inline-block';
+                };
+            };
+            reader.readAsDataURL(file);
         }
     </script>
 </body>
